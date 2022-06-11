@@ -1,2 +1,2 @@
 # Web Marketing Intelligence
-MVP серввиса доступно тут: https://petyaeva.ru/moscityhack2022
+![alt text](https://github.com/m3gaq/maketing_recomendation_service/blob/main/MVP_screenshot.png)
