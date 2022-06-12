@@ -5,4 +5,4 @@ pytrends
 plotly
 sklearn 
 bs4
-request_html
+request-html
