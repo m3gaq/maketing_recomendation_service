@@ -6,10 +6,14 @@ import plotly.express as px
 import pickle as pkl
 import re
 from pytrends.request import TrendReq
+
+from our_parser import web_parse
+
 def main():
 
     plt_topbar = pkl.load(open('plt_topbar.pkl','rb'))
     plt_topscat = pkl.load(open('plt_topscat.pkl','rb'))
+    plt_product = pkl.load(open('plt_product.pkl','rb'))
 
     @st.cache
     def get_related(df):
@@ -46,9 +50,23 @@ def main():
     st.write('Web Marketing Intelligence сервис ПАО «Банк Уралсиб» от команды MegaQuant.')
 
     st.write('## Анализ схожести клиентской базы с пользователями каналов')
-    st.write(plt_topbar)
-    st.write(plt_topscat)
-    
+    file = st.file_uploader('Дайте csv файл транзакций по клиентам',type=['csv'])
+    if file is not None:
+        df_ = pd.read_csv(file)
+    else:
+        st.write(plt_topbar)
+        st.write(plt_topscat)
+
+
+
+
+    st.write('## Мэтчинг продуктов банка с каналами продвижения')
+    file = st.file_uploader('Дайте csv файл с описанием пользователей каналов',type=['csv'])
+    if file is not None:
+        df_ = pd.read_csv(file)
+    else:
+        st.write(plt_product)
+
     st.write('## Тренды в веб пространтве')
     pytrend = TrendReq()
     country = 'russia'
@@ -85,6 +103,14 @@ def main():
                 rising = pd.DataFrame(data=related_queries.get(t).get('rising'))
                 st.write(get_related(rising))
 
+
+
+    st.write('## Статистика посещений сайтов')    
+    col, col1, col2 = st.columns(3)
+    with col:
+        web_site  = st.text_input('сайт для анализа', 'www.uralsib.ru')
+
+    st.write(web_parse(web_site))
 
 
 
