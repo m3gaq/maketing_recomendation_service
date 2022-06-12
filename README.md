@@ -1,5 +1,5 @@
 # Web Marketing Intelligence
-MVP серввиса доступно тут: https://petyaeva.ru/moscityhack2022
+MVP сервиса доступно тут: https://petyaeva.ru/moscityhack2022
 
 ### Функционал MVP:
 1. Анализ схожести клиентской базы с пользователями каналов
