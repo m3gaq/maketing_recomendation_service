@@ -16,6 +16,14 @@ def main():
     plt_topscat = pkl.load(open('plt_topscat.pkl','rb'))
     plt_product = pkl.load(open('plt_product.pkl','rb'))
 
+
+    st.sidebar.title('Web Marketing Intelligence')
+    instruments = ['Анализ схожести клиентской базы с пользователями каналов',
+                   'Мэтчинг продуктов банка с каналами продвижения',
+                   'Тренды в веб пространтве',
+                   'Статистика посещений сайтов']
+
+    selected_instruments = st.sidebar.multiselect('Выберете инструмент',instruments,instruments[:2])
     @st.cache
     def get_related(df):
         if df.size > 0:
@@ -46,81 +54,77 @@ def main():
     def get_interest_over_time(pytrend):
         return pytrend.interest_over_time()
 
-
-    st.title('Web Marketing Intelligence')
     st.write('Web Marketing Intelligence сервис ПАО «Банк Уралсиб» от команды MegaQuant.')
 
-    st.write('## Анализ схожести клиентской базы с пользователями каналов')
-    file = st.file_uploader('Дайте csv файл транзакций по клиентам',type=['csv'])
-    if file is not None:
-        df_ = pd.read_csv(file)
-    else:
-        st.write(plt_topbar)
-        st.write(plt_topscat)
+    if 'Анализ схожести клиентской базы с пользователями каналов' in selected_instruments:
+        st.write('## Анализ схожести клиентской базы с пользователями каналов')
+        file = st.file_uploader('Дайте csv файл транзакций по клиентам',type=['csv'])
+        if file is not None:
+            df_ = pd.read_csv(file)
+        else:
+            st.write(plt_topbar)
+            st.write(plt_topscat)
 
+    if 'Мэтчинг продуктов банка с каналами продвижения' in selected_instruments:
+        st.write('## Мэтчинг продуктов банка с каналами продвижения')
+        file = st.file_uploader('Дайте csv файл с описанием пользователей каналов',type=['csv'])
+        if file is not None: 
+            data_social_media = pd.read_csv(file)
+            one_hot_df = our_tools.match_user_product(data_social_media)
+            plt_user_product = px.bar(one_hot_df.groupby('channel_id').mean(),our_tools.products)
+            st.write(plt_user_product)
+        else:
+            st.info(
+                f"""
+                    👆 Попробуйте загрузить [channel_users.csv](https://hse.kamran.uz/share/channel_users.csv)
+                    """
+            )
+            st.write(plt_product)
 
+    if 'Тренды в веб пространтве' in selected_instruments:
+        st.write('## Тренды в веб пространтве')
+        pytrend = TrendReq()
+        country = 'russia'
+        col, col1, col2, col3, col4 = st.columns(5)
+        with col:
+            topic  = st.text_input('тема анализа', 'Уралсиб')
+        with col1:
+            topic1 = st.text_input('тема анализа №1', 'Тинькофф')
+        with col2:
+            topic2 = st.text_input('тема анализа №2', 'Росбанк')
+        with col3:
+            topic3 = st.text_input('тема анализа №3', 'Банк Кузнецкий')
+        with col4:
+            topic4 = st.text_input('тема анализа №4', 'МКБ')
 
+        kw_list = [topic,topic1,topic2,topic3,topic4]
+        pytrend.build_payload(kw_list=kw_list, geo='RU')
 
-    st.write('## Мэтчинг продуктов банка с каналами продвижения')
-    file = st.file_uploader('Дайте csv файл с описанием пользователей каналов',type=['csv'])
-    if file is not None: 
-        data_social_media = pd.read_csv(file)
-        one_hot_df = our_tools.match_user_product(data_social_media)
-        plt_user_product = px.bar(one_hot_df.groupby('channel_id').mean(),our_tools.products)
-        st.write(plt_user_product)
-    else:
-        st.info(
-            f"""
-                👆 Попробуйте загрузить [channel_users.csv](https://hse.kamran.uz/ps22/channel_users.csv)
-                """
-        )
-        st.write(plt_product)
+        interest_over_time_df = get_interest_over_time(pytrend)
 
+        st.write(px.line(interest_over_time_df.drop(columns='isPartial')))
 
-    st.write('## Тренды в веб пространтве')
-    pytrend = TrendReq()
-    country = 'russia'
-    col, col1, col2, col3, col4 = st.columns(5)
-    with col:
-        topic  = st.text_input('тема анализа', 'Уралсиб')
-    with col1:
-        topic1 = st.text_input('тема анализа №1', 'Тинькофф')
-    with col2:
-        topic2 = st.text_input('тема анализа №2', 'Росбанк')
-    with col3:
-        topic3 = st.text_input('тема анализа №3', 'Банк Кузнецкий')
-    with col4:
-        topic4 = st.text_input('тема анализа №4', 'МКБ')
+        st.write(f'Сейчас набирает интерес:')
 
-    kw_list = [topic,topic1,topic2,topic3,topic4]
-    pytrend.build_payload(kw_list=kw_list, geo='RU')
+        interest_by_region_df = pytrend.interest_by_region()
+        tops_one = get_top(country)
 
-    interest_over_time_df = get_interest_over_time(pytrend)
+        for t in tops_one:
+            with st.expander(f'{np.where(tops_one == t)[0] + 1} {t}'):
 
-    st.write(px.line(interest_over_time_df.drop(columns='isPartial')))
+                if st.checkbox('Показать связанные запросы', key=f'{t}one'):
+                    pytrend.build_payload(kw_list=[t])
+                    related_queries = pytrend.related_queries()
+                    rising = pd.DataFrame(data=related_queries.get(t).get('rising'))
+                    st.write(get_related(rising))
 
-    st.write(f'Сейчас набирает интерес:')
+    if 'Статистика посещений сайтов' in selected_instruments:
+        st.write('## Статистика посещений сайтов')    
+        col, col1, col2 = st.columns(3)
+        with col:
+            web_site  = st.text_input('сайт для анализа', 'www.uralsib.ru')
 
-    interest_by_region_df = pytrend.interest_by_region()
-    tops_one = get_top(country)
-
-    for t in tops_one:
-        with st.expander(f'{np.where(tops_one == t)[0] + 1} {t}'):
-
-            if st.checkbox('Показать связанные запросы', key=f'{t}one'):
-                pytrend.build_payload(kw_list=[t])
-                related_queries = pytrend.related_queries()
-                rising = pd.DataFrame(data=related_queries.get(t).get('rising'))
-                st.write(get_related(rising))
-
-
-
-    st.write('## Статистика посещений сайтов')    
-    col, col1, col2 = st.columns(3)
-    with col:
-        web_site  = st.text_input('сайт для анализа', 'www.uralsib.ru')
-
-    st.write(web_parse(web_site))
+        st.write(web_parse(web_site))
 
 
 
