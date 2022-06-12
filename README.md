@@ -17,3 +17,5 @@ MVP сервиса доступно тут: https://petyaeva.ru/moscityhack2022
 ![alt text](https://github.com/m3gaq/maketing_recomendation_service/blob/main/screenshot/MVP_screenshot.png)
 
 
+<img src="https://media.giphy.com/media/11JTxkrmq4bGE0/giphy.gif" width="450" height="400" />
+
