@@ -8,6 +8,7 @@ import re
 from pytrends.request import TrendReq
 
 from our_parser import web_parse
+import our_tools
 
 def main():
 
@@ -62,10 +63,19 @@ def main():
 
     st.write('## Мэтчинг продуктов банка с каналами продвижения')
     file = st.file_uploader('Дайте csv файл с описанием пользователей каналов',type=['csv'])
-    if file is not None:
-        df_ = pd.read_csv(file)
+    if file is not None: 
+        data_social_media = pd.read_csv(file)
+        one_hot_df = our_tools.match_user_product(data_social_media)
+        plt_user_product = px.bar(one_hot_df.groupby('channel_id').mean(),our_tools.products)
+        st.write(plt_user_product)
     else:
+        st.info(
+            f"""
+                👆 Попробуйте загрузить [channel_users.csv](https://hse.kamran.uz/ps22/channel_users.csv)
+                """
+        )
         st.write(plt_product)
+
 
     st.write('## Тренды в веб пространтве')
     pytrend = TrendReq()
