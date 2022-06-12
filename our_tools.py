@@ -191,21 +191,21 @@ def match_user_product(data_social_media):
 
 def plt_historic_data(data_plot: pd.DataFrame):
     import plotly.express as px
-      fig = px.bar(data_plot.groupby(by='source').mean(), 
-                   y = list(data_plot.groupby(by='source').mean().index), 
-                   x=data_plot.columns[-5:])
-      return fig
+    fig = px.bar(data_plot.groupby(by='source').mean(), 
+                y = list(data_plot.groupby(by='source').mean().index), 
+                x=data_plot.columns[-5:])
+    return fig
 
 def plt_historic_data_returns(data_plot: pd.DataFrame):
     import plotly.express as px
-      px.bar(data_plot.groupby(by='source').sum(), 
-                   x = list(data_plot.groupby(by='source').sum().index), 
-                   y = ['contract_sum'])
-      return fig
+    fig = px.bar(data_plot.groupby(by='source').sum(), 
+                x = list(data_plot.groupby(by='source').sum().index), 
+                y = ['contract_sum'])
+    return fig
 
 def plt_historic_data_gender(data_plot: pd.DataFrame):
     import plotly.express as px
-      fig = px.bar(data_plot.groupby(by='source').mean(), 
-                   y = list(data_plot.groupby(by='source').mean().index), 
-                   x=['gender'])
-      return fig
+    fig = px.bar(data_plot.groupby(by='source').mean(), 
+                y = list(data_plot.groupby(by='source').mean().index), 
+                x=['gender'])
+    return fig
