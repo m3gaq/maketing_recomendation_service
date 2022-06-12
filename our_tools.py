@@ -1,3 +1,31 @@
+"""#Модуль 
+В данном модуле логический выделены инструменты,
+которые используются в сервисе. 
+
+Для работы модуля необходимо наличие следующих библиотек 
+`pandas`, `numpy`. 
+Для работы ряда фукнций модуля необходимо наличие следующих библиотек
+`sklearn`,`plotly`.
+
+Следущие функции рекомендованы к использованию
+
+    * preprocess         - выполняет предобработку (очистка, трансформация, ...) 
+                           датасета с месячными транкзакциями пользователей
+
+    * generate_ds        - генериррует датасет аудитории каналов задданого размера 
+                           (генерация в согласии с исслеедованиями целевой аудитории)
+
+    * match_user_product - возвращает продуктовый профиль пользователей канала
+                           (профиль составляется по схожести с аудиторией банка) 
+
+    * plt_historic_data  - ...
+
+    * plt_historic_data_returns  - ...
+
+    * plt_historic_data_gender  - ...
+
+"""
+
 import pandas as pd
 import numpy as np
 
@@ -31,6 +59,22 @@ product_type = {p:t for p,t in zip(products,product_type)}
 user = ['gender','age','nonresident_flag']
 
 def preprocess(df, ohe_cols=['card_type_name', 'city']):
+    '''
+    Возвращает список количества визитов из сырого js кода из Spymetrics.
+
+    Parameters
+    ----------
+    df : DataFrame
+        Сырой js код из Spymetrics.
+
+    ohe_cols : list
+    
+    Returns
+    -------
+    (DataFrame, DataFrame)
+        DataFrame c визитами на сайт.
+        DataFrame c датами визитами на сайт.
+    '''
     df.drop_duplicates(inplace = True)
 
     del df['term']
@@ -144,3 +188,24 @@ def match_user_product(data_social_media):
     one_hot_df_['channel_id'] = channel_id
 
     return one_hot_df_
+
+def plt_historic_data(data_plot: pd.DataFrame):
+    import plotly.express as px
+      fig = px.bar(data_plot.groupby(by='source').mean(), 
+                   y = list(data_plot.groupby(by='source').mean().index), 
+                   x=data_plot.columns[-5:])
+      return fig
+
+def plt_historic_data_returns(data_plot: pd.DataFrame):
+    import plotly.express as px
+      px.bar(data_plot.groupby(by='source').sum(), 
+                   x = list(data_plot.groupby(by='source').sum().index), 
+                   y = ['contract_sum'])
+      return fig
+
+def plt_historic_data_gender(data_plot: pd.DataFrame):
+    import plotly.express as px
+      fig = px.bar(data_plot.groupby(by='source').mean(), 
+                   y = list(data_plot.groupby(by='source').mean().index), 
+                   x=['gender'])
+      return fig

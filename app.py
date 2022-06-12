@@ -18,7 +18,9 @@ def main():
 
 
     st.sidebar.title('Web Marketing Intelligence')
+    st.title('Web Marketing Intelligence')
     instruments = ['Анализ схожести клиентской базы с пользователями каналов',
+                   'Анализ рекламных кампаний в каналах'Б
                    'Мэтчинг продуктов банка с каналами продвижения',
                    'Тренды в веб пространтве',
                    'Статистика посещений сайтов']
@@ -58,12 +60,8 @@ def main():
 
     if 'Анализ схожести клиентской базы с пользователями каналов' in selected_instruments:
         st.write('## Анализ схожести клиентской базы с пользователями каналов')
-        file = st.file_uploader('Дайте csv файл транзакций по клиентам',type=['csv'])
-        if file is not None:
-            df_ = pd.read_csv(file)
-        else:
-            st.write(plt_topbar)
-            st.write(plt_topscat)
+        st.write(plt_topbar)
+        st.write(plt_topscat)
 
     if 'Мэтчинг продуктов банка с каналами продвижения' in selected_instruments:
         st.write('## Мэтчинг продуктов банка с каналами продвижения')
@@ -80,6 +78,21 @@ def main():
                     """
             )
             st.write(plt_product)
+
+    if 'Анализ рекламных кампаний в каналах' in selected_instruments:
+        file = st.file_uploader('Дайте csv по рекламным компаниеям в каналах',type=['csv'])
+        if file is not None:
+            df_ = pd.read_csv(file)
+            st.write(our_tools.plt_historic_data(df_))
+            st.write(our_tools.plt_historic_data_returns(df_))
+            st.write(our_tools.plt_historic_data_gender(df_))
+        else:
+            st.info(
+                f"""
+                    👆 Попробуйте загрузить [channel_products.csv](https://hse.kamran.uz/share/channel_products.csv)
+                    """
+            )
+
 
     if 'Тренды в веб пространтве' in selected_instruments:
         st.write('## Тренды в веб пространтве')
