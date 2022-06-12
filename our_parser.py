@@ -1,3 +1,18 @@
+"""Парсер Данных с Агрегатора Статистики Spymetrics
+
+Данный скрипт парсит Spymetrics и получает данные о 
+посещениях заданного веб-сайта.
+
+Для работы скрипта необходимо наличие следующих библиотек 
+`pandas`, `plotly`, `BeautifulSoup`, `requests_html`.
+
+Скрипт может быть импортирован как модуль
+    * visits_data - возвращает список количества визитов из сырого js кода из Spymetrics. 
+                    вспомогательная фукнция.
+    * web_parse   - принимает название сайта.
+                    возвращает количество посещений на задданый сайт 
+"""
+
 import re
 import ast
 import pandas as pd
@@ -8,15 +23,27 @@ from requests_html import HTMLSession
 from bs4 import BeautifulSoup
 
 
-def visits_data(parsed_contents):
+def visits_data(js_script_str):
     """
-    parsed contents = js_script_str
+    Возвращает список количества визитов из сырого js кода из Spymetrics.
+
+    Parameters
+    ----------
+    js_script_str : str
+        Сырой js код из Spymetrics.
+
+    Returns
+    -------
+    (DataFrame, DataFrame)
+        DataFrame c визитами на сайт.
+        DataFrame c датами визитами на сайт.
     """
-    parsed_contents = re.sub("Highcharts.Map", "Highcharts.Chart", parsed_contents)
+
+    js_script_str = re.sub("Highcharts.Map", "Highcharts.Chart", js_script_str)
     
     # Find the indices of new Highcharts.Chart
-    lst_1 = [match.start() for match in re.finditer("new Highcharts.Chart", parsed_contents)][1:]
-    lst_2 = [match.end() for match in re.finditer("new Highcharts.Chart", parsed_contents)]
+    lst_1 = [match.start() for match in re.finditer("new Highcharts.Chart", js_script_str)][1:]
+    lst_2 = [match.end() for match in re.finditer("new Highcharts.Chart", js_script_str)]
     
     # Pairs of indices of consecutive new Highcharts.Chart to parse everything that's inbetween
     lst_tuples = list(zip(lst_2, lst_1))
@@ -28,7 +55,7 @@ def visits_data(parsed_contents):
         t[1] = t[1] - 30
         
     # Extract the contents between the new Highcharts.Chart
-    d1_str = parsed_contents[lst_lists[0][0]:lst_lists[0][1]]
+    d1_str = js_script_str[lst_lists[0][0]:lst_lists[0][1]]
     d1_str = re.sub('false', "False", d1_str)
     d1_str = re.sub('null', '""', d1_str)
     re.sub("\\\\",'"', d1_str) ### careful, assignment may be needed!!!
@@ -39,6 +66,21 @@ def visits_data(parsed_contents):
     return d1['chart']['title'], d1['series'][1]['data']
 
 def web_parse(website):
+    """
+    Возвращает график посещений на website.
+
+    Parameters
+    ----------
+    website : str
+        Название веб-сайта в формате 'название.домен', например 'uralsib.ru'.
+
+    Returns
+    -------
+    PlotlyFigure
+        График-Линия посещений на website. 
+        По оси x дата посещений, по оси y количество посещений.
+    """
+
     root_url = "https://spymetrics.ru/ru/website/" 
     full_url = root_url + website
 
