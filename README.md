@@ -7,10 +7,10 @@ MVP сервиса доступно тут: https://petyaeva.ru/moscityhack2022
 3. Тренды в веб пространтве
 4. Статистика посещений сайтов
 
-### Архитектура:
-![alt text](https://github.com/m3gaq/maketing_recomendation_service/blob/main/MVP_architect.png)
+### Архитектура TO-BE:
+![alt text](https://github.com/m3gaq/maketing_recomendation_service/blob/main/sreenshot/MVP_architect.png)
 
 
 
 ### Интерфейс:
-![alt text](https://github.com/m3gaq/maketing_recomendation_service/blob/main/MVP_screenshot.png)
+![alt text](https://github.com/m3gaq/maketing_recomendation_service/blob/main/sreenshot/MVP_screenshot.png)
