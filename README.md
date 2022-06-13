@@ -1,6 +1,8 @@
 ![Alt Text](https://media.giphy.com/media/4a5b4AH9TG7zEgsEEe/giphy.gif)
 # Web Marketing Intelligence
-MVP сервиса доступно тут: https://petyaeva.ru/moscityhack2022
+**Рекомендательный сервис для оценки эффективности новых цифровых каналов продвижения продуктов банка**
+
+MVP сервиса доступен тут: https://petyaeva.ru/moscityhack2022
 
 Документация: https://petyaeva.ru/moscityhack2022/documentation
 
