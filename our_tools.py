@@ -1,4 +1,4 @@
-"""#Модуль 
+"""#Модуль Инструментов Сервисов
 В данном модуле логический выделены инструменты,
 которые используются в сервисе. 
 
@@ -19,10 +19,16 @@
                            (профиль составляется по схожести с аудиторией банка) 
 
     * plt_historic_data  - ...
+    
+    * plt_historic_data  - ...
 
     * plt_historic_data_returns  - ...
 
     * plt_historic_data_gender  - ...
+
+    * plt_rfm_segments_compaign - ...
+
+    * utilization - ...
 
 """
 
@@ -59,6 +65,19 @@ product_type = ['American Express']*2+['MasterCard']*8+['MIR']*7+['visa']*9+['Ot
 product_type = {p:t for p,t in zip(products,product_type)}
 user = ['gender','age','nonresident_flag']
 
+
+# генерируем цену реализации оффера на одного человека
+cost_1 = 1000 * 2
+cost_2 = 99
+cost_3 = 59 * 3
+num_days=100
+
+# генерируем список карт, к которым относится оффер
+offer_1 = ['MIR Supreme', 'MIR Privilege Plus']  
+offer_2 = ['Дебет карта ПС МИР "Бюджетная"', 'МИР Копилка']
+offer_3 = ['МИР СКБ', 'Дебет карта ПС МИР "Бюджетная"', 'МИР Копилка', 'MIR Supreme', 'MIR Privilege Plus']
+
+
 def preprocess(df, ohe_cols=['card_type_name', 'city']):
     '''
     Возвращает список количества визитов из сырого js кода из Spymetrics.
@@ -73,8 +92,8 @@ def preprocess(df, ohe_cols=['card_type_name', 'city']):
     Returns
     -------
     (DataFrame, DataFrame)
-        DataFrame c визитами на сайт.
-        DataFrame c датами визитами на сайт.
+        Таблица c визитами на сайт.
+        Таблица c датами визитами на сайт.
     '''
     df.drop_duplicates(inplace = True)
 
@@ -174,6 +193,19 @@ def generate_ds(size=1000,db_size=0.3):
     return data_social_media
 
 def match_user_product(data_social_media):
+    """ 
+    Находит 
+
+    Parameters
+    ----------
+    data_plot: DataFrame
+        Таблица признаков активных пользователей каналов
+
+    Returns
+    -------
+    one_hot_df_: DataFrame
+        Таблица признаков активных пользователей каналов с соответствующим продуктовыми профилями 
+    """
     from sklearn.neighbors import KNeighborsRegressor
     channel_id = data_social_media['channel_id']
     data_social_media = data_social_media.drop(columns='channel_id')
@@ -306,3 +338,165 @@ def plt_rfm_segments_compaign(data_marketing_compaign, data_rfm=data_rfm):
         go.Pie(values = list(data3), labels=list(data3.index)),row=1, col=3)
     fig.update_layout(height=600, width=800, title_text="Сегмент пользователей по RFM, пришедших из рекламных кампаний")
     return fig
+
+def utiliztion_gr(data_util, num_days, start_util_):
+    """ Находит `passed_day`, процент утилизаций за каждый из дней и строит график зависимости процента утилизаций от номера дня проведения маркетинговой кампании
+    
+    Parameters
+    ----------
+    data_util : DataFrame
+        таблица с данными о клиентах
+    start_util_ : int
+        количество клиентов, утилизированных до начала маркетинговой кампании
+    
+    Returns
+    -------
+    fig
+        график зависимости процента утилизаций от номера дня проведения маркетинговой кампании
+    utils : list
+        список, содержащий процент утилизаций за каждый из дней маркетинговой компании
+    """
+    import plotly.express as px
+    import datetime as DT
+    import random
+    from datetime import datetime, timedelta
+    # находим passed_day 
+    data_util = data_util.copy()
+    data_util["passed_day"] =  data_util["util_date"] - data_util["create_date"]
+    data_util = data_util.copy()
+    data_util["passed_day"] = data_util["passed_day"].apply(lambda x: x.days)
+    
+    # считаем накопленную утилизацию на каждый из дней от 0-го до num_days
+    nums = np.arange(num_days)
+    utils = []
+    for i in range(num_days):
+        data_under_n = data_util[(data_util["passed_day"] <= i) & (data_util["passed_day"] > 0)]
+        util = (len(data_under_n) + start_util_) * 100 / (len(data_util) + start_util_)
+        utils.append(util)
+    
+    # строим график
+    fig = px.line(y=utils, x=nums, title='Накопленная утилизация', labels={'x': 'Номер дня', 'y': 'Процент утилизации (%)'}, color_discrete_sequence=["#4C4C9D"])
+    return fig, utils
+
+def count_costs(expected_growth, utils, on_day, zero_day, cost_):
+    """ Считает кост привлечения (утилизации) `expected_growth`% клиентов от общего количества клиентов, имеющих данную карту
+    
+    Parameters
+    ----------
+    expected_growth : float
+        ожидаемая доля прироста утилизированных клиентов 
+    utils : list
+        список, содержащий процент утилизаций за каждый из дней маркетинговой компании
+    on_day : int
+        номер дня с даты start_day, до которого мы хотим посчитать кост утилизации клиентов
+    cost_ : цена проведения реализации оффера на одного человека    
+    
+    Returns
+    -------
+    costs : float
+        кост привлечения (утилизации) `expected_growth`% клиентов от общего количества клиентов, имеющих данную карту
+    """
+    import plotly.express as px
+    import datetime as DT
+    import random
+    from datetime import datetime, timedelta
+    costs = (utils[zero_day] - utils[on_day]) * cost_ / expected_growth 
+    return costs
+
+def work_with_data_util(df_u_, num_days):
+    """ Генерирует даты утилизации и подготавливает данные
+    
+    Parameters
+    ----------
+    df_u_ : DataFrame
+        таблица с транзакциями клиентов
+    num_days : int
+        количество дней, на протяжении которых проводится маркетинговая компания
+    
+    Returns
+    -------
+    df_util : DataFrame
+        обработанная таблица с транзакциями клиентов
+    start_util_ : int
+        количество клиентов, утилизированных до начала маркетинговой кампании
+    """
+    import plotly.express as px
+    import datetime as DT
+    import random
+    from datetime import datetime, timedelta
+    # удаляем дубликаты
+    df_u_.drop_duplicates(inplace = True)
+    
+    df_u_["create_date"] = pd.to_datetime(df_u_["create_date"], format="")
+    
+    # генерируем даты утилизации
+    period_1 = np.random.randint(0, 7, int(len(df_u_) * (4/5)))
+    period_2 = np.random.randint(7, num_days, len(df_u_) - len(period_1))
+    period_ = np.concatenate((period_1,period_2))
+    df_u_["util_date"] = df_u_["create_date"]
+    df_u_["util_date"] = df_u_["util_date"].apply(lambda x: x + timedelta(days=int(random.choice(period_))))
+    
+    
+    # выявляем уже утилизированных 
+    start_util_ = len(df_u_[df_u_["purchase_sum"] != 0])
+    df_u_.loc[df_u_["purchase_sum"] != 0, "util_date"] = np.nan
+    
+    df_util = df_u_[['client_id', 'card_type', 'card_type_name', 'create_date', 'current_balance_sum', 'util_date']]
+    return df_util, start_util_
+
+def utilization(offer, expected_growth, on_day, zero_day,df_u=df):
+    """ Запускает подсчет утилизации и построение графика 
+    
+    Parameters
+    ----------
+    df_u : DataFrame
+        таблица с транзакциями клиентов
+
+    offer : str
+        обозначение оффера
+
+    expected_growth : float
+        ожидаемая доля прироста утилизированных клиентов 
+
+    on_day : int
+        номер дня с даты start_day, до которого мы хотим посчитать кост утилизации клиентов
+
+    zero_day : int
+        номер дня с даты start_day, с которого мы хотим посчитать кост утилизации клиентов   
+    
+    Returns
+    -------
+    fig.show()
+        график зависимости процента утилизаций от номера дня проведения маркетинговой кампании
+    costs : float
+        кост привлечения (утилизации) `expected_growth`% клиентов (на заданный день кампании) от общего количества клиентов, имеющих данную карту
+    """
+    import plotly.express as px
+    import datetime as DT
+    import random
+    from datetime import datetime, timedelta
+    df_u_cust = df_u.copy()
+    cost = 1
+    
+    # берем только те транзакции, которые соответствуют пользователям, обладающим картой из списка карт для оффера №1
+    if offer == "1":
+        df_u_cust = df_u[df_u["card_type_name"].isin(offer_1)]
+        cost = cost_1
+    
+    # аналогично для оффера №2
+    if offer == "2":
+        df_u_cust = df_u[df_u["card_type_name"].isin(offer_2)]
+        cost = cost_2
+    
+    # аналогично для оффера №3
+    if offer == "3":
+        df_u_cust = df_u[df_u["card_type_name"].isin(offer_3)]
+        cost = cost_3
+    
+    # подготавливаем данные
+    df_util, start_util = work_with_data_util(df_u_cust, num_days)
+    # выводим график и список с накопленными утилизациями по дням
+    fig, utils = utiliztion_gr(df_util, num_days, start_util)
+    # считаем накопленный кост привлечения клиента по заданному дню кампании
+    costs = count_costs(expected_growth, utils, on_day, zero_day, cost)
+    return fig, costs
