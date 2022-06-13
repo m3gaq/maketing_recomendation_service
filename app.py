@@ -80,6 +80,7 @@ def main():
             st.write(plt_product)
 
     if 'Анализ рекламных кампаний в каналах' in selected_instruments:
+        st.write('## Анализ рекламных кампаний в каналах')
         file = st.file_uploader('Дайте csv по рекламным компаниеям в каналах',type=['csv'])
         if file is not None:
             df_ = pd.read_csv(file)

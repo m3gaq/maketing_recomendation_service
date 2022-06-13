@@ -30,6 +30,7 @@ import pandas as pd
 import numpy as np
 
 df = pd.read_csv('https://hse.kamran.uz/share/hack2022_df.csv')
+data_rfm = pd.read_csv('https://hse.kamran.uz/share/data_rfm.csv')
 
 products = [
        'card_type_name_American Express Optimum',
@@ -192,20 +193,61 @@ def match_user_product(data_social_media):
 def plt_historic_data(data_plot: pd.DataFrame):
     import plotly.express as px
     fig = px.bar(data_plot.groupby(by='source').mean(), 
-                y = list(data_plot.groupby(by='source').mean().index), 
-                x=data_plot.columns[-5:])
+               y = list(data_plot.groupby(by='source').mean().index), 
+               x=data_plot.columns[-5:])
+    fig.update_layout(
+    title="Распределение заказанного продукта по каналам",
+    xaxis_title="Интерес к продукту (процент покупок от общего количества перешедших)",
+    yaxis_title="Каналы")
     return fig
 
 def plt_historic_data_returns(data_plot: pd.DataFrame):
     import plotly.express as px
     fig = px.bar(data_plot.groupby(by='source').sum(), 
-                x = list(data_plot.groupby(by='source').sum().index), 
-                y = ['contract_sum'])
+               x = list(data_plot.groupby(by='source').sum().index), 
+               y = ['contract_sum'])
+    fig.update_layout(
+    title="Итоговая сумма контрактов по каналам",
+    xaxis_title="source",
+    yaxis_title="contract_sum_all")
     return fig
 
 def plt_historic_data_gender(data_plot: pd.DataFrame):
     import plotly.express as px
     fig = px.bar(data_plot.groupby(by='source').mean(), 
-                y = list(data_plot.groupby(by='source').mean().index), 
-                x=['gender'])
+               y = list(data_plot.groupby(by='source').mean().index), 
+               x=['gender'])
+    fig.update_layout(
+    title="Распределение М/Ж по каналам",
+    xaxis_title="Пол",
+    yaxis_title="Каналы")
+    return fig
+    
+def rfm_segments_compaign(data_marketing_compaign, data_rfm=data_rfm):
+
+    def rfm_query(adid):
+      ans = data_rfm[
+                     data_rfm['client_id']
+                     .isin(data_marketing_compaign[
+                                         ((data_marketing_compaign.is_deal == 1) & (data_marketing_compaign.adid == adid))
+                                         ]
+                           ['client_id']
+                                        .unique())
+                     ].rfm_score_name.value_counts()
+      return ans
+      
+    data1 = rfm_query('8730nd')
+    data2 = rfm_query('873kdb')
+    data3 = rfm_query('n27cl3')
+
+    fig = make_subplots(rows=1, cols=3, 
+                        specs=[[{'type':'domain'}, {'type':'domain'}, {'type':'domain'}]], 
+                                              subplot_titles=['id - 8730nd', 'id - 873kdb', 'id - n27cl3'])
+    fig.add_trace(
+        go.Pie(values = list(data1), labels=list(data1.index)),row=1, col=1)
+    fig.add_trace(
+        go.Pie(values = list(data2), labels=list(data2.index)),row=1, col=2)
+    fig.add_trace(
+        go.Pie(values = list(data3), labels=list(data3.index)),row=1, col=3)
+    fig.update_layout(height=600, width=800, title_text="Сегмент пользователей по RFM, пришедших из рекламных кампаний")
     return fig
