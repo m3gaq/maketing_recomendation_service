@@ -66,8 +66,9 @@ def main():
 
     if 'Мэтчинг продуктов банка с каналами продвижения' in selected_instruments:
         st.write('## Мэтчинг продуктов банка с каналами продвижения')
-        file = st.file_uploader('Загрзите csv файл с описанием пользователей каналов',type=['csv'])
+        file = st.file_uploader('Загрузите csv файл с описанием пользователей каналов',type=['csv'])
         if file is not None: 
+            st.write('На графике показана совместимость продуктов банка с каналами продвижения. Он показывает, какие продукты привлекательны в конкретном канале. Здесь не используются  исторические данные по маркетинговым кампаниям.')
             data_social_media = pd.read_csv(file)
             one_hot_df = our_tools.match_user_product(data_social_media)
             plt_user_product = px.bar(one_hot_df.groupby('channel_id').mean(),our_tools.products)
@@ -82,12 +83,14 @@ def main():
 
     if 'Анализ проведенных рекламных кампаний в каналах' in selected_instruments:
         st.write('## Анализ проведенных рекламных кампаний в каналах')
-        file = st.file_uploader('Загрзите csv по рекламным компаниеям в каналах',type=['csv'])
+        file = st.file_uploader('Загрузите csv по рекламным компаниеям в каналах',type=['csv'])
         if file is not None:
+            st.write('Здесь приведен анализ предыдущих рекламных кампаний и RFM сегментация (см https://petyaeva.ru/moscityhack2022/documentation). Это поможет оценить интересы новой аудитории, похожей на ту, о которой мы уже что-то знаем. К тому же, можно оценить из какого канала какой сегмент пользователей по RFM, как правило, приходит, для понимания лояльности к нашему банку и платежеспособности.')
             df_ = pd.read_csv(file)
             st.write(our_tools.plt_historic_data(df_))
             st.write(our_tools.plt_historic_data_returns(df_))
             st.write(our_tools.plt_historic_data_gender(df_))
+            st.write('Ниже представлена статистика привлеченных пользователей по рекламным кампаниям и их оценка по RFM сегментации. Так, например, кампания с id 8730nd привлекла 20% лучших клиентов (champions) и скорее всего похожие рекламные кампании будут также успешны.')
             st.write(our_tools.plt_rfm_segments_compaign(df_))
         else:
             st.info(
@@ -138,6 +141,7 @@ def main():
         st.write(uti_fig)
     if 'Тренды в веб пространстве' in selected_instruments:
         st.write('## Тренды в веб пространстве')
+        st.write('Если ты хочешь исследовать внешний контекст, то тв можешь вбить ключевые слова интересующей тебя тематики. График тебе выведет количество запросов по этим словам. Пример: политика. График покажет, сколько людей искали в поисковике слово «Политика». На основе этого ты можешь понимать тенденции во внешней среде.')
         pytrend = TrendReq()
         country = 'russia'
         col, col1, col2, col3, col4 = st.columns(5)

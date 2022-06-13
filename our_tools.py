@@ -148,13 +148,10 @@ def try_different_clusters(K, data):
     Returns
     -------
     elbow_fig : PlotlyFigure
-        График Метода-Локтя, используемый для оценки качества кластеризации
+        График метода Локтя, используемый для оценки качества кластеризации
 
     clust_models : list[Kmeans]
-        список 
-
-    distances : DataFrame
-        Предобработнная Таблица транкзакций пользователей.
+        Список из обученных моделей по убыванию гипперпараметра K
     '''
     from sklearn.cluster import KMeans
     cluster_values = list(range(1, K+1))
@@ -170,6 +167,25 @@ def try_different_clusters(K, data):
     return inertias,clust_models
 
 def fit_clusters(one_hot_df):
+    '''
+    Пребирает параметр K для алгоритма K-means из Таблицы data.
+
+    Parameters
+    ----------
+    one_hot_df : Dataframe
+        Обработанная Таблица транзакций пользователей.
+
+    Returns
+    -------
+    elbow_fig : PlotlyFigure
+        График Метода-Локтя, используемый для оценки качества кластеризации
+
+    clust_models : list[Kmeans]
+        Список обученных алгоритмов Kmeans
+
+    distances : list
+        Список расстояний между кластерами
+    '''
     from sklearn.cluster import KMeans
     kmeans_model = KMeans(init='k-means++',  max_iter=400, random_state=42)
     kmeans_model.fit(one_hot_df)
@@ -308,7 +324,7 @@ def plt_historic_data_gender(data_plot: pd.DataFrame):
                y = list(data_plot.groupby(by='source').mean().index), 
                x=['gender'])
     fig.update_layout(
-    title="Распределение М/Ж по каналам",
+    title="Распределение по каналам",
     xaxis_title="Пол",
     yaxis_title="Каналы")
     return fig
