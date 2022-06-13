@@ -262,7 +262,7 @@ def plt_historic_data_gender(data_plot: pd.DataFrame):
     yaxis_title="Каналы")
     return fig
 
-def rfm_segments_compaign(data_marketing_compaign, data_rfm=data_rfm):
+def plt_rfm_segments_compaign(data_marketing_compaign, data_rfm=data_rfm):
     """ 
     Визуализирует результаты сегментации на основе RFM модели 
     по истечению тестового срока клиентов, купивших продукт во время рекламной кампании

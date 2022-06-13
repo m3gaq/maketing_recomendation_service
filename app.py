@@ -22,7 +22,7 @@ def main():
     instruments = ['Анализ схожести клиентской базы с пользователями каналов',
                    'Анализ проведенных рекламных кампаний в каналах',
                    'Мэтчинг продуктов банка с каналами продвижения',
-                   'Тренды в веб пространтве',
+                   'Тренды в веб пространстве',
                    'Статистика посещений сайтов']
 
     selected_instruments = st.sidebar.multiselect('Выберете инструмент',instruments,instruments[:2])
@@ -87,7 +87,7 @@ def main():
             st.write(our_tools.plt_historic_data(df_))
             st.write(our_tools.plt_historic_data_returns(df_))
             st.write(our_tools.plt_historic_data_gender(df_))
-            st.write(our_tools.rfm_query(df_))
+            st.write(our_tools.plt_rfm_segments_compaign(df_))
         else:
             st.info(
                 f"""
@@ -96,8 +96,8 @@ def main():
             )
 
 
-    if 'Тренды в веб пространтве' in selected_instruments:
-        st.write('## Тренды в веб пространтве')
+    if 'Тренды в веб пространстве' in selected_instruments:
+        st.write('## Тренды в веб пространстве')
         pytrend = TrendReq()
         country = 'russia'
         col, col1, col2, col3, col4 = st.columns(5)
