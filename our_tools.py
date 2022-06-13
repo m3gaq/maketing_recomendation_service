@@ -191,6 +191,19 @@ def match_user_product(data_social_media):
     return one_hot_df_
 
 def plt_historic_data(data_plot: pd.DataFrame):
+    """ 
+    Визуализирует распределения интересов к продуктам у пользователей, перешедших по ссылке (купивших и не купивших)
+
+    Parameters
+    ----------
+    data_plot: DataFrame
+        Таблица проведенных рекламных кампаний по каналам.
+    
+    Returns
+    -------
+    fig: PlotlyFigure
+        Столбчатый график распределения заказанного продукта по каналам
+    """
     import plotly.express as px
     fig = px.bar(data_plot.groupby(by='source').mean(), 
                y = list(data_plot.groupby(by='source').mean().index), 
@@ -202,6 +215,19 @@ def plt_historic_data(data_plot: pd.DataFrame):
     return fig
 
 def plt_historic_data_returns(data_plot: pd.DataFrame):
+    """ 
+    Визуализирует доходы со всех каналов 
+
+    Parameters
+    ----------
+    data_plot: DataFrame
+        Таблица проведенных рекламных кампаний по каналам.
+    
+    Returns
+    -------
+    fig: PlotlyFigure
+        Столбчатый график доходов по каналам продвижения. 
+    """
     import plotly.express as px
     fig = px.bar(data_plot.groupby(by='source').sum(), 
                x = list(data_plot.groupby(by='source').sum().index), 
@@ -213,6 +239,19 @@ def plt_historic_data_returns(data_plot: pd.DataFrame):
     return fig
 
 def plt_historic_data_gender(data_plot: pd.DataFrame):
+    """ 
+    Визуализирует распределение пола заинтересованных пользователей по каналам
+
+    Parameters
+    ----------
+    data_plot: DataFrame
+        Таблица проведенных рекламных кампаний по каналам.
+    
+    Returns
+    -------
+    fig: PlotlyFigure
+        Столбчатый график распределения пола заинтересованных.
+    """
     import plotly.express as px
     fig = px.bar(data_plot.groupby(by='source').mean(), 
                y = list(data_plot.groupby(by='source').mean().index), 
@@ -222,8 +261,23 @@ def plt_historic_data_gender(data_plot: pd.DataFrame):
     xaxis_title="Пол",
     yaxis_title="Каналы")
     return fig
-    
+
 def rfm_segments_compaign(data_marketing_compaign, data_rfm=data_rfm):
+    """ 
+    Визуализирует результаты сегментации на основе RFM модели 
+    по истечению тестового срока клиентов, купивших продукт во время рекламной кампании
+
+    Parameters
+    ----------
+    data_plot: DataFrame
+        Таблица проведенных рекламных кампаний по каналам.
+    
+    Returns
+    -------
+    fig: PlotlyFigure
+        Столбчатый график распредления сегментов пользователей по RFM, 
+        пришедших из рекламных кампаний.
+    """
 
     def rfm_query(adid):
       ans = data_rfm[

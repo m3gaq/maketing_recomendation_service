@@ -20,7 +20,7 @@ def main():
     st.sidebar.title('Web Marketing Intelligence')
     st.title('Web Marketing Intelligence')
     instruments = ['Анализ схожести клиентской базы с пользователями каналов',
-                   'Анализ рекламных кампаний в каналах',
+                   'Анализ проведенных рекламных кампаний в каналах',
                    'Мэтчинг продуктов банка с каналами продвижения',
                    'Тренды в веб пространтве',
                    'Статистика посещений сайтов']
@@ -79,14 +79,15 @@ def main():
             )
             st.write(plt_product)
 
-    if 'Анализ рекламных кампаний в каналах' in selected_instruments:
-        st.write('## Анализ рекламных кампаний в каналах')
+    if 'Анализ проведенных рекламных кампаний в каналах' in selected_instruments:
+        st.write('## Анализ проведенных рекламных кампаний в каналах')
         file = st.file_uploader('Дайте csv по рекламным компаниеям в каналах',type=['csv'])
         if file is not None:
             df_ = pd.read_csv(file)
             st.write(our_tools.plt_historic_data(df_))
             st.write(our_tools.plt_historic_data_returns(df_))
             st.write(our_tools.plt_historic_data_gender(df_))
+            st.write(our_tools.rfm_query(df_))
         else:
             st.info(
                 f"""
