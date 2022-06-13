@@ -19,7 +19,7 @@
                            (профиль составляется по схожести с аудиторией банка) 
 
     * plt_historic_data  - ...
-    
+
     * plt_historic_data  - ...
 
     * plt_historic_data_returns  - ...
@@ -80,20 +80,17 @@ offer_3 = ['МИР СКБ', 'Дебет карта ПС МИР "Бюджетна
 
 def preprocess(df, ohe_cols=['card_type_name', 'city']):
     '''
-    Возвращает список количества визитов из сырого js кода из Spymetrics.
+    Предобрабатывает Таблицу транкзакций пользователей.
 
     Parameters
     ----------
     df : DataFrame
-        Сырой js код из Spymetrics.
+        Сырая Таблица транкзакций пользователей.
 
-    ohe_cols : list
-    
     Returns
     -------
-    (DataFrame, DataFrame)
-        Таблица c визитами на сайт.
-        Таблица c датами визитами на сайт.
+    one_hot_df : DataFrame
+        Предобработнная Таблица транкзакций пользователей.
     '''
     df.drop_duplicates(inplace = True)
 
@@ -137,6 +134,28 @@ def preprocess(df, ohe_cols=['card_type_name', 'city']):
     return one_hot_df
 
 def try_different_clusters(K, data):
+    '''
+    Пребирает параметр K для алгортма K-means из Таблицы data.
+
+    Parameters
+    ----------
+    K : int
+        Парметр перебора (перебриаемые значения <= K).
+
+    data : Dataframe
+        любая Таблица с численными признаками.
+
+    Returns
+    -------
+    elbow_fig : PlotlyFigure
+        График Метода-Локтя, используемый для оценки качества кластеризации
+
+    clust_models : list[Kmeans]
+        список 
+
+    distances : DataFrame
+        Предобработнная Таблица транкзакций пользователей.
+    '''
     from sklearn.cluster import KMeans
     cluster_values = list(range(1, K+1))
     inertias=[]
