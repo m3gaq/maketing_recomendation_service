@@ -278,7 +278,8 @@ def rfm_segments_compaign(data_marketing_compaign, data_rfm=data_rfm):
         Столбчатый график распредления сегментов пользователей по RFM, 
         пришедших из рекламных кампаний.
     """
-
+    from plotly.subplots import make_subplots
+    import plotly.graph_objects as go
     def rfm_query(adid):
       ans = data_rfm[
                      data_rfm['client_id']
