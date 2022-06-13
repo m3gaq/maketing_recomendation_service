@@ -19,7 +19,7 @@ def main():
 
     st.sidebar.title('Web Marketing Intelligence')
     st.title('Web Marketing Intelligence')
-    st.write('Привет! Это команда MegaQuant. Специально для тебя мы разработали рекомендательный сервис для оценки эффективности новых цифровых каналов продвижения продуктов банка. Обрати внимание на меню слева, чтобы выбрать инструменты для принятия взвешенных решений :)')
+    st.write('Привет! Это команда MegaQuant. Специально для тебя мы разработали рекомендательный сервис для оценки эффективности новых цифровых каналов продвижения продуктов банка. Обрати внимание на меню **слева**, чтобы выбрать инструменты для принятия взвешенных решений :)')
     instruments = ['Анализ схожести клиентской базы с пользователями каналов',
                    'Анализ проведенных рекламных кампаний в каналах',
                    'Мэтчинг продуктов банка с каналами продвижения',
@@ -72,6 +72,11 @@ def main():
             data_social_media = pd.read_csv(file)
             one_hot_df = our_tools.match_user_product(data_social_media)
             plt_user_product = px.bar(one_hot_df.groupby('channel_id').mean(),our_tools.products)
+
+            plt_user_product.update_layout(
+                xaxis_title="значение",
+                yaxis_title="id канала")
+
             st.write(plt_user_product)
         else:
             st.info(
@@ -85,7 +90,7 @@ def main():
         st.write('## Анализ проведенных рекламных кампаний в каналах')
         file = st.file_uploader('Загрузите csv по рекламным компаниеям в каналах',type=['csv'])
         if file is not None:
-            st.write('Здесь приведен анализ предыдущих рекламных кампаний и RFM сегментация (см https://petyaeva.ru/moscityhack2022/documentation). Это поможет оценить интересы новой аудитории, похожей на ту, о которой мы уже что-то знаем. К тому же, можно оценить из какого канала какой сегмент пользователей по RFM, как правило, приходит, для понимания лояльности к нашему банку и платежеспособности.')
+            st.write('Здесь приведен анализ предыдущих рекламных кампаний и RFM сегментация (см [хабр](https://habr.com/ru/post/497356/)). Это поможет оценить интересы новой аудитории, похожей на ту, о которой мы уже что-то знаем. К тому же, можно оценить из какого канала какой сегмент пользователей по RFM, как правило, приходит, для понимания лояльности к нашему банку и платежеспособности.')
             df_ = pd.read_csv(file)
             st.write(our_tools.plt_historic_data(df_))
             st.write(our_tools.plt_historic_data_returns(df_))
@@ -126,12 +131,21 @@ def main():
 
 * `offer` = ['МИР СКБ', 'Дебет карта ПС МИР "Бюджетная"', 'МИР Копилка', 'MIR Supreme', 'MIR Privilege Plus']
 ''')
-        st.write('Введите парамерты будущей маркетинговой кампании')
+        st.write('''Ниже ты можешь ввести следующие параметры маркетинговой кампании:
+
+`offer` - индентификационный номер маркетинговой кампании
+
+`expected_growth in %` - ожидаемая доля прироста утилизированных клиентов
+
+`on_day` - на какой по счету день клиенту предложили оффер
+
+`zero_day` - продолжительность оффера''')
+        
         col1,col2,col3,col4 = st.columns(4)
         with col1:
             offer=st.selectbox('offer',[1,2,3],1)
         with col2:
-            expected_growth=st.number_input('expected_growth in %',1,1000,10,1)/1000
+            expected_growth=st.number_input('expected_growth in %',1,100,10,1)/100
         with col3:
             on_day=st.slider('on_day',0,100,0,1)
         with col4:
@@ -141,7 +155,7 @@ def main():
         st.write(uti_fig)
     if 'Тренды в веб пространстве' in selected_instruments:
         st.write('## Тренды в веб пространстве')
-        st.write('Если ты хочешь исследовать внешний контекст, то тв можешь вбить ключевые слова интересующей тебя тематики. График тебе выведет количество запросов по этим словам. Пример: политика. График покажет, сколько людей искали в поисковике слово «Политика». На основе этого ты можешь понимать тенденции во внешней среде.')
+        st.write('Если ты хочешь исследовать внешний контекст, то ты можешь вбить ключевые слова интересующей тебя тематики. График тебе выведет количество запросов по этим словам. Пример: политика. График покажет, сколько людей искали в поисковике слово «Политика». На основе этого ты можешь понимать тенденции во внешней среде.')
         pytrend = TrendReq()
         country = 'russia'
         col, col1, col2, col3, col4 = st.columns(5)
@@ -160,8 +174,12 @@ def main():
         pytrend.build_payload(kw_list=kw_list, geo='RU')
 
         interest_over_time_df = get_interest_over_time(pytrend)
-
-        st.write(px.line(interest_over_time_df.drop(columns='isPartial')))
+        plt_site_visit = px.line(interest_over_time_df.drop(columns='isPartial'))
+        plt_site_visit.update_layout(
+                                        title="Итоговая сумма контрактов по каналам",
+                                        xaxis_title="source",
+                                        yaxis_title="contract_sum_all")
+        st.write(plt_site_visit)
 
         st.write(f'Сейчас набирает интерес:')
 
