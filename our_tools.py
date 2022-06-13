@@ -1,6 +1,5 @@
-"""#Модуль Инструментов Сервисов
-В данном модуле логический выделены инструменты,
-которые используются в сервисе. 
+"""#Модуль Инструментов Сервиса
+В данном модуле выделены инструменты, которые используются в сервисе. 
 
 Для работы модуля необходимо наличие следующих библиотек 
 `pandas`, `numpy`. 
@@ -9,26 +8,23 @@
 
 Следущие функции рекомендованы к использованию
 
-    * preprocess         - выполняет предобработку (очистка, трансформация, ...) 
-                           датасета с месячными транкзакциями пользователей
+    * preprocess                - выполняет предобработку (очистка, трансформация, ...) 
+                                датасета с месячными транкзакциями пользователей
 
-    * generate_ds        - генериррует датасет аудитории каналов задданого размера 
-                           (генерация в согласии с исслеедованиями целевой аудитории)
+    * generate_ds               - генериррует датасет аудитории каналов задданого размера 
+                                (генерация в согласии с исслеедованиями целевой аудитории)
 
-    * match_user_product - возвращает продуктовый профиль пользователей канала
-                           (профиль составляется по схожести с аудиторией банка) 
+    * match_user_product        - возвращает продуктовый профиль пользователей канала
+                                (профиль составляется по схожести с аудиторией банка) 
 
-    * plt_historic_data  - ...
+    * plt_historic_data         - визуализирует распределения интересов к продуктам у пользователей, 
+                                перешедших по ссылке (купивших и не купивших)
 
-    * plt_historic_data  - ...
+    * plt_historic_data_returns - визуализирует доходы со всех каналов 
 
-    * plt_historic_data_returns  - ...
+    * plt_rfm_segments_compaign - визуализирует результаты сегментации на основе RFM модели 
 
-    * plt_historic_data_gender  - ...
-
-    * plt_rfm_segments_compaign - ...
-
-    * utilization - ...
+    * utilization               - выполняет подсчет утилизации и построение графика 
 
 """
 
@@ -305,30 +301,6 @@ def plt_historic_data_returns(data_plot: pd.DataFrame):
     yaxis_title="contract_sum_all")
     return fig
 
-def plt_historic_data_gender(data_plot: pd.DataFrame):
-    """ 
-    Визуализирует распределение пола заинтересованных пользователей по каналам
-
-    Parameters
-    ----------
-    data_plot: DataFrame
-        Таблица проведенных рекламных кампаний по каналам.
-    
-    Returns
-    -------
-    fig: PlotlyFigure
-        Столбчатый график распределения пола заинтересованных.
-    """
-    import plotly.express as px
-    fig = px.bar(data_plot.groupby(by='source').mean(), 
-               y = list(data_plot.groupby(by='source').mean().index), 
-               x=['gender'])
-    fig.update_layout(
-    title="Распределение по каналам",
-    xaxis_title="Пол",
-    yaxis_title="Каналы")
-    return fig
-
 def plt_rfm_segments_compaign(data_marketing_compaign, data_rfm=data_rfm):
     """ 
     Визуализирует результаты сегментации на основе RFM модели 
@@ -381,13 +353,15 @@ def utiliztion_gr(data_util, num_days, start_util_):
     ----------
     data_util : DataFrame
         таблица с данными о клиентах
+
     start_util_ : int
         количество клиентов, утилизированных до начала маркетинговой кампании
     
     Returns
     -------
-    fig
+    fig : PlotlyFigure
         график зависимости процента утилизаций от номера дня проведения маркетинговой кампании
+
     utils : list
         список, содержащий процент утилизаций за каждый из дней маркетинговой компании
     """
@@ -420,10 +394,13 @@ def count_costs(expected_growth, utils, on_day, zero_day, cost_):
     ----------
     expected_growth : float
         ожидаемая доля прироста утилизированных клиентов 
+
     utils : list
         список, содержащий процент утилизаций за каждый из дней маркетинговой компании
+
     on_day : int
         номер дня с даты start_day, до которого мы хотим посчитать кост утилизации клиентов
+
     cost_ : цена проведения реализации оффера на одного человека    
     
     Returns
@@ -445,6 +422,7 @@ def work_with_data_util(df_u_, num_days):
     ----------
     df_u_ : DataFrame
         таблица с транзакциями клиентов
+
     num_days : int
         количество дней, на протяжении которых проводится маркетинговая компания
     
@@ -452,6 +430,7 @@ def work_with_data_util(df_u_, num_days):
     -------
     df_util : DataFrame
         обработанная таблица с транзакциями клиентов
+
     start_util_ : int
         количество клиентов, утилизированных до начала маркетинговой кампании
     """
@@ -480,7 +459,7 @@ def work_with_data_util(df_u_, num_days):
     return df_util, start_util_
 
 def utilization(offer, expected_growth, on_day, zero_day,df_u=df):
-    """ Запускает подсчет утилизации и построение графика 
+    """ Выполняет подсчет утилизации и построение графика 
     
     Parameters
     ----------
@@ -501,8 +480,9 @@ def utilization(offer, expected_growth, on_day, zero_day,df_u=df):
     
     Returns
     -------
-    fig.show()
+    fig : PlotlyFigure
         график зависимости процента утилизаций от номера дня проведения маркетинговой кампании
+
     costs : float
         кост привлечения (утилизации) `expected_growth`% клиентов (на заданный день кампании) от общего количества клиентов, имеющих данную карту
     """
@@ -535,3 +515,118 @@ def utilization(offer, expected_growth, on_day, zero_day,df_u=df):
     # считаем накопленный кост привлечения клиента по заданному дню кампании
     costs = count_costs(expected_growth, utils, on_day, zero_day, cost)
     return fig, costs
+
+
+
+"""#Парсер Данных с Агрегатора Статистики Spymetrics
+
+Данный скрипт парсит Spymetrics и получает данные о 
+посещениях заданного веб-сайта.
+
+Для работы скрипта необходимо наличие следующих библиотек 
+`pandas`, `plotly`, `BeautifulSoup`, `requests_html`.
+
+Скрипт может быть импортирован как модуль.
+
+    * visits_data - возвращает список количества визитов из сырого js кода из Spymetrics. 
+                    Вспомогательная фукнция.
+
+    * web_parse   - принимает название сайта.
+                    Возвращает количество посещений на заданный сайт 
+"""
+
+import re
+import ast
+import pandas as pd
+
+import plotly.express as px
+import datetime
+from requests_html import HTMLSession
+from bs4 import BeautifulSoup
+
+
+def visits_data(js_script_str):
+    """ 
+    Возвращает список количества визитов из сырого js кода из Spymetrics.
+
+    Parameters
+    ----------
+    js_script_str : str
+        Сырой js код из Spymetrics.
+    
+    Returns
+    -------
+    (DataFrame, DataFrame)
+        DataFrame c визитами на сайт.
+        DataFrame c датами визитами на сайт.
+    """
+
+    js_script_str = re.sub("Highcharts.Map",     "Highcharts.Chart", js_script_str)
+    
+    # Find the indices of new Highcharts.Chart
+    lst_1 = [match.start() for match in re.finditer("new Highcharts.Chart", js_script_str)][1:]
+    lst_2 = [match.end() for match in re.finditer("new Highcharts.Chart", js_script_str)]
+    
+    # Pairs of indices of consecutive new Highcharts.Chart to parse everything that's inbetween
+    lst_tuples = list(zip(lst_2, lst_1))
+    lst_lists = [list(elem) for elem in lst_tuples]
+    
+    # Adjust the indices to get rid of rubbish
+    for t in lst_lists:
+        t[0] = t[0] + 1
+        t[1] = t[1] - 30
+        
+    # Extract the contents between the new Highcharts.Chart
+    d1_str = js_script_str[lst_lists[0][0]:lst_lists[0][1]]
+    d1_str = re.sub('false', "False", d1_str)
+    d1_str = re.sub('null', '""', d1_str)
+    re.sub("\\\\",'"', d1_str) ### careful, assignment may be needed!!!
+    
+    # Convert to dict
+    d1 = ast.literal_eval(d1_str)
+    
+    return d1['chart']['title'], d1['series'][1]['data']
+
+def web_parse(website):
+    """
+    Возвращает график посещений на website.
+
+    Parameters
+    ----------
+    website : str
+        Название веб-сайта в формате 'название.домен', например 'uralsib.ru'.
+
+    Returns
+    -------
+    PlotlyFigure
+        График-Линия посещений на website. 
+        По оси x дата посещений, по оси y количество посещений.
+    """
+
+    root_url = "https://spymetrics.ru/ru/website/" 
+    full_url = root_url + website
+
+    # create an HTML Session object
+    session = HTMLSession()
+
+    # Use the object above to connect to needed webpage
+    html= session.get(full_url).text
+
+    soup = BeautifulSoup(html, "html.parser")
+    list_js_scripts = soup.find_all("script", type="text/javascript")
+    js_script_str = None
+    for js_script in list_js_scripts:
+        if "jQuery('#webcompareform')" in str(js_script):
+            js_script_str = js_script.contents[0]
+            visits = visits_data(js_script_str)
+
+    today = datetime.date.today()
+    first = today.replace(day=1)
+    prev = [first - i * datetime.timedelta(days=25) for i in range(1,7)]
+    monthes = []
+    for date in prev:
+        monthes.append(date.strftime("%b%Y"))
+    monthes = monthes[::-1]
+
+    fig = px.line(y=visits[1], x=monthes, title=f'Визиты сайта {website}', labels={'x': 'Месяц', 'y': 'Количество посещений'}, color_discrete_sequence=["#4C4C9D"])
+    return fig
