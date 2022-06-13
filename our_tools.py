@@ -410,7 +410,7 @@ def utiliztion_gr(data_util, num_days, start_util_):
         utils.append(util)
     
     # строим график
-    fig = px.line(y=utils, x=nums, title='Накопленная утилизация', labels={'x': 'Номер дня', 'y': 'Процент утилизации (%)'}, color_discrete_sequence=["#4C4C9D"])
+    fig = px.line(y=utils, x=nums, title='Накопленная утилизация', labels={'x': 'День утилизации', 'y': 'Процент утилизации (%)'}, color_discrete_sequence=["#4C4C9D"])
     return fig, utils
 
 def count_costs(expected_growth, utils, on_day, zero_day, cost_):
